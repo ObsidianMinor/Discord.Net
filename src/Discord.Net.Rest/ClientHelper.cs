@@ -79,7 +79,7 @@ namespace Discord.Rest
             ulong? fromGuildId, int? limit, RequestOptions options)
         {
             return new PagedAsyncEnumerable<RestUserGuild>(
-                DiscordConfig.MaxUsersPerBatch,
+                DiscordConfig.MaxGuildsPerBatch,
                 async (info, ct) =>
                 {
                     var args = new GetGuildSummariesParams
