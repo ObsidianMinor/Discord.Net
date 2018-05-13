@@ -5,15 +5,15 @@ using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class InviteUpdateAuditLogData : IAuditLogData
+    public class InviteUpdateAuditLogEntry : RestAuditLogEntry
     {
-        private InviteUpdateAuditLogData(InviteInfo before, InviteInfo after)
+        private InviteUpdateAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, InviteInfo before, InviteInfo after) : base(discord, model, user)
         {
             Before = before;
             After = after;
         }
 
-        internal static InviteUpdateAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static InviteUpdateAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
 
@@ -37,7 +37,7 @@ namespace Discord.Rest
             var before = new InviteInfo(oldMaxAge, oldCode, oldTemporary, oldChannelId, oldMaxUses);
             var after = new InviteInfo(newMaxAge, newCode, newTemporary, newChannelId, newMaxUses);
 
-            return new InviteUpdateAuditLogData(before, after);
+            return new InviteUpdateAuditLogEntry(discord, entry, user, before, after);
         }
 
         public InviteInfo Before { get; }

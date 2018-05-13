@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,9 +9,9 @@ using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class WebhookDeleteAuditLogData : IAuditLogData
+    public class WebhookDeleteAuditLogEntry : RestAuditLogEntry
     {
-        private WebhookDeleteAuditLogData(ulong id, ulong channel, WebhookType type, string name, string avatar)
+        private WebhookDeleteAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, ulong id, ulong channel, WebhookType type, string name, string avatar) : base(discord, model, user)
         {
             WebhookId = id;
             ChannelId = channel;
@@ -20,7 +20,7 @@ namespace Discord.Rest
             Avatar = avatar;
         }
 
-        internal static WebhookDeleteAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static WebhookDeleteAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
 
@@ -34,7 +34,7 @@ namespace Discord.Rest
             var name = nameModel.OldValue.ToObject<string>();
             var avatarHash = avatarHashModel?.OldValue?.ToObject<string>();
 
-            return new WebhookDeleteAuditLogData(entry.TargetId.Value, channelId, type, name, avatarHash);
+            return new WebhookDeleteAuditLogEntry(discord, entry, user, entry.TargetId.Value, channelId, type, name, avatarHash);
         }
 
         public ulong WebhookId { get; }

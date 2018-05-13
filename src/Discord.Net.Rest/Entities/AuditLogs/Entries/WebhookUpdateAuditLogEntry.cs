@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,16 +9,16 @@ using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class WebhookUpdateAuditLogData : IAuditLogData
+    public class WebhookUpdateAuditLogEntry : RestAuditLogEntry
     {
-        private WebhookUpdateAuditLogData(IWebhook webhook, WebhookInfo before, WebhookInfo after)
+        private WebhookUpdateAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, IWebhook webhook, WebhookInfo before, WebhookInfo after) : base(discord, model, user)
         {
             Webhook = webhook;
             Before = before;
             After = after;
         }
 
-        internal static WebhookUpdateAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static WebhookUpdateAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
 
@@ -39,7 +39,7 @@ namespace Discord.Rest
             var webhookInfo = log.Webhooks?.FirstOrDefault(x => x.Id == entry.TargetId);
             var webhook = RestWebhook.Create(discord, (IGuild)null, webhookInfo);
 
-            return new WebhookUpdateAuditLogData(webhook, before, after);
+            return new WebhookUpdateAuditLogEntry(discord, entry, user, webhook, before, after);
         }
 
         //Again, the *current* data

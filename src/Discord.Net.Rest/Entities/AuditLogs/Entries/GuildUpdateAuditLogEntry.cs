@@ -1,19 +1,19 @@
-﻿using System.Linq;
+using System.Linq;
 
 using Model = Discord.API.AuditLog;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class GuildUpdateAuditLogData : IAuditLogData
+    public class GuildUpdateAuditLogEntry : RestAuditLogEntry
     {
-        private GuildUpdateAuditLogData(GuildInfo before, GuildInfo after)
+        private GuildUpdateAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, GuildInfo before, GuildInfo after) : base(discord, model, user)
         {
             Before = before;
             After = after;
         }
 
-        internal static GuildUpdateAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static GuildUpdateAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
 
@@ -70,7 +70,7 @@ namespace Discord.Rest
                 newAfkChannelId, newName, newRegionId, newIconHash, newVerificationLevel, newOwner,
                 newMfaLevel, newContentFilter);
 
-            return new GuildUpdateAuditLogData(before, after);
+            return new GuildUpdateAuditLogEntry(discord, entry, user, before, after);
         }
 
         public GuildInfo Before { get; }

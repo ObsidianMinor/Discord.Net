@@ -1,13 +1,13 @@
-﻿using System.Linq;
+using System.Linq;
 
 using Model = Discord.API.AuditLog;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class OverwriteUpdateAuditLogData : IAuditLogData
+    public class OverwriteUpdateAuditLogEntry : RestAuditLogEntry
     {
-        private OverwriteUpdateAuditLogData(OverwritePermissions before, OverwritePermissions after, ulong targetId, PermissionTarget targetType)
+        private OverwriteUpdateAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, OverwritePermissions before, OverwritePermissions after, ulong targetId, PermissionTarget targetType) : base(discord, model, user)
         {
             OldPermissions = before;
             NewPermissions = after;
@@ -15,7 +15,7 @@ namespace Discord.Rest
             OverwriteType = targetType;
         }
 
-        internal static OverwriteUpdateAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static OverwriteUpdateAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
 
@@ -32,7 +32,7 @@ namespace Discord.Rest
 
             PermissionTarget target = entry.Options.OverwriteType == "member" ? PermissionTarget.User : PermissionTarget.Role;
 
-            return new OverwriteUpdateAuditLogData(beforePermissions, afterPermissions, entry.Options.OverwriteTargetId.Value, target);
+            return new OverwriteUpdateAuditLogEntry(discord, entry, user, beforePermissions, afterPermissions, entry.Options.OverwriteTargetId.Value, target);
         }
 
         public OverwritePermissions OldPermissions { get; }

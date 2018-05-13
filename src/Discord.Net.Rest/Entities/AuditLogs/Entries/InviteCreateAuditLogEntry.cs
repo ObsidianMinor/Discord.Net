@@ -1,13 +1,13 @@
-﻿using System.Linq;
+using System.Linq;
 
 using Model = Discord.API.AuditLog;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class InviteDeleteAuditLogData : IAuditLogData
+    public class InviteCreateAuditLogEntry : RestAuditLogEntry
     {
-        private InviteDeleteAuditLogData(int maxAge, string code, bool temporary, IUser inviter, ulong channelId, int uses, int maxUses)
+        private InviteCreateAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, int maxAge, string code, bool temporary, IUser inviter, ulong channelId, int uses, int maxUses) : base(discord, model, user)
         {
             MaxAge = maxAge;
             Code = code;
@@ -18,7 +18,7 @@ namespace Discord.Rest
             MaxUses = maxUses;
         }
 
-        internal static InviteDeleteAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static InviteCreateAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
 
@@ -30,18 +30,18 @@ namespace Discord.Rest
             var usesModel = changes.FirstOrDefault(x => x.ChangedProperty == "uses");
             var maxUsesModel = changes.FirstOrDefault(x => x.ChangedProperty == "max_uses");
 
-            var maxAge = maxAgeModel.OldValue.ToObject<int>();
-            var code = codeModel.OldValue.ToObject<string>();
-            var temporary = temporaryModel.OldValue.ToObject<bool>();
-            var inviterId = inviterIdModel.OldValue.ToObject<ulong>();
-            var channelId = channelIdModel.OldValue.ToObject<ulong>();
-            var uses = usesModel.OldValue.ToObject<int>();
-            var maxUses = maxUsesModel.OldValue.ToObject<int>();
+            var maxAge = maxAgeModel.NewValue.ToObject<int>();
+            var code = codeModel.NewValue.ToObject<string>();
+            var temporary = temporaryModel.NewValue.ToObject<bool>();
+            var inviterId = inviterIdModel.NewValue.ToObject<ulong>();
+            var channelId = channelIdModel.NewValue.ToObject<ulong>();
+            var uses = usesModel.NewValue.ToObject<int>();
+            var maxUses = maxUsesModel.NewValue.ToObject<int>();
 
             var inviterInfo = log.Users.FirstOrDefault(x => x.Id == inviterId);
             var inviter = RestUser.Create(discord, inviterInfo);
 
-            return new InviteDeleteAuditLogData(maxAge, code, temporary, inviter, channelId, uses, maxUses);
+            return new InviteCreateAuditLogEntry(discord, entry, user, maxAge, code, temporary, inviter, channelId, uses, maxUses);
         }
 
         public int MaxAge { get; }

@@ -1,20 +1,20 @@
-﻿using System.Linq;
+using System.Linq;
 
 using Model = Discord.API.AuditLog;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class RoleUpdateAuditLogData : IAuditLogData
+    public class RoleUpdateAuditLogEntry : RestAuditLogEntry
     {
-        private RoleUpdateAuditLogData(ulong id, RoleInfo oldProps, RoleInfo newProps)
+        private RoleUpdateAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, ulong id, RoleInfo oldProps, RoleInfo newProps) : base(discord, model, user)
         {
             RoleId = id;
             Before = oldProps;
             After = newProps;
         }
 
-        internal static RoleUpdateAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static RoleUpdateAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
 
@@ -52,7 +52,7 @@ namespace Discord.Rest
             var oldProps = new RoleInfo(oldColor, oldMentionable, oldHoist, oldName, oldPermissions);
             var newProps = new RoleInfo(newColor, newMentionable, newHoist, newName, newPermissions);
 
-            return new RoleUpdateAuditLogData(entry.TargetId.Value, oldProps, newProps);
+            return new RoleUpdateAuditLogEntry(discord, entry, user, entry.TargetId.Value, oldProps, newProps);
         }
 
         public ulong RoleId { get; }

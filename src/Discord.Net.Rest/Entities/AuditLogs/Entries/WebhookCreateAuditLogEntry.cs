@@ -1,13 +1,13 @@
-﻿using System.Linq;
+using System.Linq;
 
 using Model = Discord.API.AuditLog;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class WebhookCreateAuditLogData : IAuditLogData
+    public class WebhookCreateAuditLogEntry : RestAuditLogEntry
     {
-        private WebhookCreateAuditLogData(IWebhook webhook, WebhookType type, string name, ulong channelId)
+        private WebhookCreateAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, IWebhook webhook, WebhookType type, string name, ulong channelId) : base(discord, model, user)
         {
             Webhook = webhook;
             Name = name;
@@ -15,7 +15,7 @@ namespace Discord.Rest
             ChannelId = channelId;
         }
 
-        internal static WebhookCreateAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static WebhookCreateAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
 
@@ -30,7 +30,7 @@ namespace Discord.Rest
             var webhookInfo = log.Webhooks?.FirstOrDefault(x => x.Id == entry.TargetId);
             var webhook = RestWebhook.Create(discord, (IGuild)null, webhookInfo);
 
-            return new WebhookCreateAuditLogData(webhook, type, name, channelId);
+            return new WebhookCreateAuditLogEntry(discord, entry, user, webhook, type, name, channelId);
         }
 
         //Corresponds to the *current* data

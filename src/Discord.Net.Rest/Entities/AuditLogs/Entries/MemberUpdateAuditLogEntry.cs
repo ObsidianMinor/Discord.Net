@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 
 using Model = Discord.API.AuditLog;
 using EntryModel = Discord.API.AuditLogEntry;
@@ -6,16 +6,16 @@ using ChangeModel = Discord.API.AuditLogChange;
 
 namespace Discord.Rest
 {
-    public class MemberUpdateAuditLogData : IAuditLogData
+    public class MemberUpdateAuditLogEntry : RestAuditLogEntry
     {
-        private MemberUpdateAuditLogData(IUser target, string newNick, string oldNick)
+        private MemberUpdateAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, IUser target, string newNick, string oldNick) : base(discord, model, user)
         {
             Target = target;
             NewNick = newNick;
             OldNick = oldNick;
         }
 
-        internal static MemberUpdateAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static MemberUpdateAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "nick");
 
@@ -23,9 +23,9 @@ namespace Discord.Rest
             var oldNick = changes.OldValue?.ToObject<string>();
 
             var targetInfo = log.Users.FirstOrDefault(x => x.Id == entry.TargetId);
-            var user = RestUser.Create(discord, targetInfo);
+            var target = RestUser.Create(discord, targetInfo);
 
-            return new MemberUpdateAuditLogData(user, newNick, oldNick);
+            return new MemberUpdateAuditLogEntry(discord, entry, user, target, newNick, oldNick);
         }
 
         public IUser Target { get; }

@@ -1,19 +1,19 @@
-﻿using System.Linq;
+using System.Linq;
 
 using Model = Discord.API.AuditLog;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class RoleDeleteAuditLogData : IAuditLogData
+    public class RoleDeleteAuditLogEntry : RestAuditLogEntry
     {
-        private RoleDeleteAuditLogData(ulong id, RoleInfo props)
+        private RoleDeleteAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, ulong id, RoleInfo props) : base(discord, model, user)
         {
             RoleId = id;
             Properties = props;
         }
 
-        internal static RoleDeleteAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static RoleDeleteAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
 
@@ -37,7 +37,7 @@ namespace Discord.Rest
             if (permissionsRaw.HasValue)
                 permissions = new GuildPermissions(permissionsRaw.Value);
 
-            return new RoleDeleteAuditLogData(entry.TargetId.Value,
+            return new RoleDeleteAuditLogEntry(discord, entry, user, entry.TargetId.Value,
                 new RoleInfo(color, mentionable, hoist, name, permissions));
         }
 

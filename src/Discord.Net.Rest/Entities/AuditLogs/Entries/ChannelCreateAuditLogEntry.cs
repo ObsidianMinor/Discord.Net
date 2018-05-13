@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,9 +7,9 @@ using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class ChannelCreateAuditLogData : IAuditLogData
+    public class ChannelCreateAuditLogEntry : RestAuditLogEntry
     {
-        private ChannelCreateAuditLogData(ulong id, string name, ChannelType type, IReadOnlyCollection<Overwrite> overwrites)
+        private ChannelCreateAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, ulong id, string name, ChannelType type, IReadOnlyCollection<Overwrite> overwrites) : base(discord, model, user)
         {
             ChannelId = id;
             ChannelName = name;
@@ -17,7 +17,7 @@ namespace Discord.Rest
             Overwrites = overwrites;
         }
 
-        internal static ChannelCreateAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static ChannelCreateAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
             var overwrites = new List<Overwrite>();
@@ -41,7 +41,7 @@ namespace Discord.Rest
                 overwrites.Add(new Overwrite(id, permType, new OverwritePermissions(allow, deny)));
             }
 
-            return new ChannelCreateAuditLogData(entry.TargetId.Value, name, type, overwrites.ToReadOnlyCollection());
+            return new ChannelCreateAuditLogEntry(discord, entry, user, entry.TargetId.Value, name, type, overwrites.ToReadOnlyCollection());
         }
 
         public ulong ChannelId { get; }

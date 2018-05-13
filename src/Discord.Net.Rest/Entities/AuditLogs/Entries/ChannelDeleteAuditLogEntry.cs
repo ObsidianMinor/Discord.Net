@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,9 +9,9 @@ using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class ChannelDeleteAuditLogData : IAuditLogData
+    public class ChannelDeleteAuditLogEntry : RestAuditLogEntry
     {
-        private ChannelDeleteAuditLogData(ulong id, string name, ChannelType type, IReadOnlyCollection<Overwrite> overwrites)
+        private ChannelDeleteAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, ulong id, string name, ChannelType type, IReadOnlyCollection<Overwrite> overwrites) : base(discord, model, user)
         {
             ChannelId = id;
             ChannelName = name;
@@ -19,7 +19,7 @@ namespace Discord.Rest
             Overwrites = overwrites;
         }
 
-        internal static ChannelDeleteAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static ChannelDeleteAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
 
@@ -34,7 +34,7 @@ namespace Discord.Rest
             var name = nameModel.OldValue.ToObject<string>();
             var id = entry.TargetId.Value;
 
-            return new ChannelDeleteAuditLogData(id, name, type, overwrites.ToReadOnlyCollection());
+            return new ChannelDeleteAuditLogEntry(discord, entry, user, id, name, type, overwrites.ToReadOnlyCollection());
         }
 
         public ulong ChannelId { get; }

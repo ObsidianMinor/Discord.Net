@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,11 +15,6 @@ namespace Discord
         /// The action which occured to create this entry
         /// </summary>
         ActionType Action { get; }
-
-        /// <summary>
-        /// The data for this entry. May be <see cref="null"/> if no data was available.
-        /// </summary>
-        IAuditLogData Data { get; }
 
         /// <summary>
         /// The user responsible for causing the changes

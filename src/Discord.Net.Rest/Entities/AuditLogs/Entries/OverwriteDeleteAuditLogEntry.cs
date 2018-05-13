@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,14 +11,14 @@ using OptionModel = Discord.API.AuditLogOptions;
 
 namespace Discord.Rest
 {
-    public class OverwriteDeleteAuditLogData : IAuditLogData
+    public class OverwriteDeleteAuditLogEntry : RestAuditLogEntry
     {
-        private OverwriteDeleteAuditLogData(Overwrite deletedOverwrite)
+        private OverwriteDeleteAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, Overwrite deletedOverwrite) : base(discord, model, user)
         {
             Overwrite = deletedOverwrite;
         }
 
-        internal static OverwriteDeleteAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static OverwriteDeleteAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
 
@@ -34,7 +34,7 @@ namespace Discord.Rest
 
             PermissionTarget target = type == "member" ? PermissionTarget.User : PermissionTarget.Role;
 
-            return new OverwriteDeleteAuditLogData(new Overwrite(id, target, new OverwritePermissions(allow, deny)));
+            return new OverwriteDeleteAuditLogEntry(discord, entry, user, new Overwrite(id, target, new OverwritePermissions(allow, deny)));
         }
 
         public Overwrite Overwrite { get; }

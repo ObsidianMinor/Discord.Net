@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,15 +7,15 @@ using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class MemberRoleAuditLogData : IAuditLogData
+    public class MemberRoleAuditLogEntry : RestAuditLogEntry
     {
-        private MemberRoleAuditLogData(IReadOnlyCollection<RoleInfo> roles, IUser target)
+        private MemberRoleAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, IReadOnlyCollection<RoleInfo> roles, IUser target) : base(discord, model, user)
         {
             Roles = roles;
             Target = target;
         }
 
-        internal static MemberRoleAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static MemberRoleAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var changes = entry.Changes;
 
@@ -25,9 +25,9 @@ namespace Discord.Rest
                 .ToList();
 
             var userInfo = log.Users.FirstOrDefault(x => x.Id == entry.TargetId);
-            var user = RestUser.Create(discord, userInfo);
+            var target = RestUser.Create(discord, userInfo);
 
-            return new MemberRoleAuditLogData(roleInfos.ToReadOnlyCollection(), user);
+            return new MemberRoleAuditLogEntry(discord, entry, user, roleInfos.ToReadOnlyCollection(), target);
         }
 
         public IReadOnlyCollection<RoleInfo> Roles { get; }

@@ -283,7 +283,14 @@ namespace Discord.Rest
                     if (info.Position != null)
                         args.BeforeEntryId = info.Position.Value;
                     var model = await client.ApiClient.GetAuditLogsAsync(guild.Id, args, options);
-                    return model.Entries.Select((x) => RestAuditLogEntry.Create(client, model, x)).ToImmutableArray();
+                    return model.Entries.Select((x) =>
+                    {
+                        var userInfo = model.Users.FirstOrDefault(y => y.Id == x.UserId);
+                        IUser user = null;
+                        if (userInfo != null)
+                            user = RestUser.Create(client, userInfo);
+                        return RestAuditLogEntry.CreateEntry(client, x, model, user);
+                    }).ToImmutableArray();
                 },
                 nextPage: (info, lastPage) =>
                 {

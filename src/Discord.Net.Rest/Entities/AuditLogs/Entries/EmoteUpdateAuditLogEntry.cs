@@ -1,27 +1,27 @@
-﻿using System.Linq;
+using System.Linq;
 
 using Model = Discord.API.AuditLog;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class EmoteUpdateAuditLogData : IAuditLogData
+    public class EmoteUpdateAuditLogEntry : RestAuditLogEntry
     {
-        private EmoteUpdateAuditLogData(ulong id, string oldName, string newName)
+        private EmoteUpdateAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, ulong id, string oldName, string newName) : base(discord, model, user)
         {
             EmoteId = id;
             OldName = oldName;
             NewName = newName;
         }
 
-        internal static EmoteUpdateAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static EmoteUpdateAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var change = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "name");
 
             var newName = change.NewValue?.ToObject<string>();
             var oldName = change.OldValue?.ToObject<string>();
 
-            return new EmoteUpdateAuditLogData(entry.TargetId.Value, oldName, newName);
+            return new EmoteUpdateAuditLogEntry(discord, entry, user, entry.TargetId.Value, oldName, newName);
         }
 
         public ulong EmoteId { get; }

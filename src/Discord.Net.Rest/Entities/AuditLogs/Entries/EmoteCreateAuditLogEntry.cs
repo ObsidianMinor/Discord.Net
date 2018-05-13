@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,20 +9,20 @@ using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.Rest
 {
-    public class EmoteCreateAuditLogData : IAuditLogData
+    public class EmoteCreateAuditLogEntry : RestAuditLogEntry
     {
-        private EmoteCreateAuditLogData(ulong id, string name)
+        private EmoteCreateAuditLogEntry(BaseDiscordClient discord, EntryModel model, IUser user, ulong id, string name) : base(discord, model, user)
         {
             EmoteId = id;
             Name = name;
         }
 
-        internal static EmoteCreateAuditLogData Create(BaseDiscordClient discord, Model log, EntryModel entry)
+        internal static EmoteCreateAuditLogEntry Create(BaseDiscordClient discord, Model log, EntryModel entry, IUser user)
         {
             var change = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "name");
 
             var emoteName = change.NewValue?.ToObject<string>();
-            return new EmoteCreateAuditLogData(entry.TargetId.Value, emoteName);
+            return new EmoteCreateAuditLogEntry(discord, entry, user, entry.TargetId.Value, emoteName);
         }
 
         public ulong EmoteId { get; }
